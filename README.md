@@ -2,43 +2,42 @@
 
 ## Project Description
 
-net-connections is a cybersecurity tool that helps track and log network connections. It provides basic network operations, such as connecting to a remote host, sending and receiving data, and closing the connection. net-connections is ideal for security professionals who need to monitor network activity and identify potential threats.
+net-connections is a small network utility with three checks, implemented in the single script `main.py`: it reports whether a hostname resolves, prints the IP address a hostname resolves to, and reports whether a URL answers an HTTP request (with its status code). Every check is also written to a log file named `net_connections.log` in the working directory.
 
 ## Installation
 
-To install net-connections, run the following command:
+The tool is a single script (`main.py`) and is not published as a pip package. Clone this repository, then install its one third-party dependency, requests (everything else it imports is in the Python standard library; the repo ships no requirements.txt):
 
 ```
-pip install net-connections
+pip install requests
 ```
 
 ## Usage Examples
 
-To use net-connections, open a terminal window and type the following command:
+Run the script with exactly one of its three options:
 
 ```
-net-connections [-h] [-v] [-f FILENAME] [-t TIMEOUT] [-p PROTOCOL] HOST PORT
+python main.py --check-host <hostname>
+python main.py --get-ip <hostname>
+python main.py --test-url <url>
 ```
 
 where:
 
+* **--check-host HOSTNAME** prints whether the hostname resolves to an IP address
+* **--get-ip HOSTNAME** prints the IP address the hostname resolves to
+* **--test-url URL** prints whether the URL is reachable and its HTTP status code
 * **-h** displays the help message
-* **-v** enables verbose output
-* **-f FILENAME** specifies the file to which the connection log will be written
-* **-t TIMEOUT** specifies the timeout in seconds for the connection attempt
-* **-p PROTOCOL** specifies the protocol to use for the connection (default: TCP)
-* **HOST** is the hostname or IP address of the remote host
-* **PORT** is the port number of the remote host
 
-For example, to connect to a remote host on port 80 using the TCP protocol and log the connection to a file called "connection.log", you would type the following command:
+With no option given, the script prints its help text. For example, to print the IP address of a hostname:
 
 ```
-net-connections -f connection.log -p TCP example.com 80
+python main.py --get-ip example.com
 ```
 
 ## Security Warnings
 
-net-connections is a powerful tool that can be used to monitor network activity. However, it is important to use this tool responsibly. Do not use net-connections to spy on others or to engage in any illegal activities.
+net-connections only performs the three checks above: it does not open or track connections to a host and port, and it does not send or receive application data.
 
 ## License
 
