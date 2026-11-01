@@ -4,6 +4,9 @@ import logging
 import argparse
 
 # Configure logging
+# This file handler opens at import time, before any argument is
+# parsed, and the name is fixed. Running from a different directory
+# writes the log there, and even a --help run creates the file.
 logging.basicConfig(
     filename='net_connections.log',
     level=logging.INFO,
@@ -28,6 +31,9 @@ def setup_argparse():
 def check_host_reachable(hostname):
     try:
         logging.info(f"Checking if host '{hostname}' is reachable...")
+        # Reachable here means only that the name resolves. I never
+        # open a connection, so a host that answers DNS but refuses
+        # every port still reports as reachable. Read the word that way.
         socket.gethostbyname(hostname)
         logging.info(f"Host '{hostname}' is reachable.")
         return f"Host '{hostname}' is reachable."
@@ -43,12 +49,19 @@ def get_ip_address(hostname):
         return ip_address
     except socket.error as e:
         logging.error(f"Failed to resolve IP for hostname '{hostname}': {e}")
+        # The error text comes back on the same channel as a real
+        # address, so the caller prints it after an "IP Address:" label.
+        # A caller that needs to branch on failure has to look for the
+        # Error prefix itself; there is no second signal.
         return f"Error: {e}"
 
 def test_url_reachability(url):
     try:
         logging.info(f"Testing URL reachability for '{url}'...")
         response = requests.get(url, timeout=5)
+        # Any status counts as reachable, including a 404 or a 500: I
+        # never call raise_for_status. The test proves a server answered,
+        # not that the page is healthy.
         logging.info(f"URL '{url}' is reachable with status code {response.status_code}.")
         return f"URL '{url}' is reachable with status code {response.status_code}."
     except requests.RequestException as e:
@@ -59,6 +72,9 @@ def main():
     parser = setup_argparse()
     args = parser.parse_args()
 
+    # The elif chain runs only the first flag given, in this order:
+    # check-host, then get-ip, then test-url. Extra flags are parsed
+    # and silently ignored, not combined into one run.
     if args.check_host:
         result = check_host_reachable(args.check_host)
         print(result)
