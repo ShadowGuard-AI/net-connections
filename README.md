@@ -19,9 +19,9 @@ pip install requests
 Run the script with exactly one of its three options:
 
 ```
-python main.py --check-host <hostname>
-python main.py --get-ip <hostname>
-python main.py --test-url <url>
+python3 main.py --check-host <hostname>
+python3 main.py --get-ip <hostname>
+python3 main.py --test-url <url>
 ```
 
 where:
@@ -34,13 +34,21 @@ where:
 With no option given, the script prints its help text. For example, to print the IP address of a hostname:
 
 ```
-python main.py --get-ip example.com
+python3 main.py --get-ip example.com
 ```
 
 ## Security Warnings
 
 net-connections only performs the three checks above: it does not open or track connections to a host and port, and it does not send or receive application data.
 
+## Notes verified in Wave 12
+
+- Only the first flag given runs, in this order: `--check-host`, then `--get-ip`, then `--test-url`. Extra flags are parsed and silently ignored, not combined.
+- `--check-host` reachable means only that the name resolves in DNS; no connection is opened, so a host that answers DNS but refuses every port still reports as reachable.
+- `--test-url` reachable means a server answered with any HTTP status, including 404 or 500; it does not mean the page is healthy.
+- `--get-ip` on a name that does not resolve prints the error text after an "IP Address:" label, with no separate failure signal.
+- Every run writes `net_connections.log` in the working directory, and even a `--help` run creates that file, because the log handler opens at import time.
+
 ## License
 
-net-connections is licensed under the GNU General Public License v3.0. This license allows you to use, modify, and distribute the software for free. The software is licensed to CY83R-3X71NC710N.
+GNU General Public License v3.0. See [LICENSE](LICENSE).
